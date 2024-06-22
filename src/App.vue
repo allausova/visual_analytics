@@ -5,21 +5,10 @@ import TheWelcome from './components/TheWelcome.vue'
 
 <template>
   <header>
-<<<<<<< HEAD
     <img alt="Vue logo" class="logo" src="./assets/logo.jpg" width="125" height="125" />
 
     <div class="wrapper">
-<<<<<<< HEAD
       <HelloWorld msg="Mini-Challenge 2: Identify Patterns" />
-=======
-      <HelloWorld msg="You are amazing!" />
->>>>>>> 7fdf24b (corrected amazon/amazing)
-=======
-    <img alt="Vue logo" class="logo" src="/src/assets/logo.jpg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="Mini-Challenge 2: Identify Patterns" />
->>>>>>> 67af11c (Initial commit)
     </div>
   </header>
 
