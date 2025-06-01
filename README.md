@@ -1,7 +1,6 @@
 
 Project for visual analytics course
 =======
-# va-vue-project
 
 ## Data
 
