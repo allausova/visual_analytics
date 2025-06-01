@@ -5,10 +5,10 @@ import TheWelcome from './components/TheWelcome.vue'
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.jpg" width="125" height="125" />
+    <!-- <img alt="Vue logo" class="logo" src="./assets/logo.jpg" width="125" height="125" /> -->
 
     <div class="wrapper">
-      <HelloWorld msg="Mini-Challenge 2: Identify Patterns" />
+      <HelloWorld msg="Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights" />
     </div>
   </header>
 
