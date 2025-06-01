@@ -3,37 +3,10 @@ Project for visual analytics course
 =======
 # va-vue-project
 
-This template should help get you started developing with Vue 3 in Vite.
+## Data
 
-## Recommended IDE Setup
+https://www.kaggle.com/datasets/joebeachcapital/airbnb
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Analytic task
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
->>>>>>> 6d9b096 (initial creation of the template)
+Explore how the number of active Airbnb hosts varies over time and geography across European countries and cities.

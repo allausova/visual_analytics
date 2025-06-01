@@ -1,13 +1,37 @@
 <script setup>
+import { ref, computed, onMounted, watchEffect } from 'vue'
+import * as d3 from 'd3'
+
 import WelcomeItem from './WelcomeItem.vue'
 import DocumentationIcon from './icons/IconDocumentation.vue'
 import ToolingIcon from './icons/IconTooling.vue'
 import EcosystemIcon from './icons/IconEcosystem.vue'
 import CommunityIcon from './icons/IconCommunity.vue'
 import SupportIcon from './icons/IconSupport.vue'
+import Crossfilter from './Crossfilter.vue'
+import Count from './Count.vue'
+
+// доступ к expose
+const filterRef = ref(null)
+const filteredData = ref([])
+
+watchEffect(() => {
+  if (filterRef.value?.filteredData) {
+    filteredData.value = filterRef.value.filteredData
+  }
+})
 </script>
 
 <template>
+  <div>
+    <!-- передаём ref -->
+    <Crossfilter ref="filterRef" />
+
+    <!-- счётчик -->
+    <Count :filteredData="filteredData" />
+  </div>
+
+  <!-- существующие блоки WelcomeItem -->
   <WelcomeItem>
     <template #icon>
       <DocumentationIcon />
@@ -20,16 +44,8 @@ import SupportIcon from './icons/IconSupport.vue'
     <template #icon>
       <EcosystemIcon />
     </template>
-    <template #heading> Compute host Concentration:</template>
+    <template #heading>Compute host Concentration:</template>
       Probably use metrics like Herfindahl–Hirschman Index (HHI) to see how concentrated hosting is in certain areas.
-
-    <!-- <a href="https://router.vuejs.org/" target="_blank" rel="noopener">Vue Router</a>,
-    <a href="https://test-utils.vuejs.org/" target="_blank" rel="noopener">Vue Test Utils</a>, and
-    <a href="https://github.com/vuejs/devtools" target="_blank" rel="noopener">Vue Dev Tools</a>. If
-    you need more resources, we suggest paying
-    <a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">Awesome Vue</a>
-    a visit.
- -->
   </WelcomeItem>
 
   <WelcomeItem>
@@ -44,16 +60,6 @@ import SupportIcon from './icons/IconSupport.vue'
       <CommunityIcon />
     </template>
     <template #heading>Bar charts for top cities by host count.</template>
-
-    <!--<a href="https://chat.vuejs.org" target="_blank" rel="noopener">Vue Land</a>, our official
-    Discord server, or
-    <a href="https://stackoverflow.com/questions/tagged/vue.js" target="_blank" rel="noopener"
-      >StackOverflow</a
-    >. You should also subscribe to
-    <a href="https://news.vuejs.org" target="_blank" rel="noopener">our mailing list</a> and follow
-    the official
-    <a href="https://twitter.com/vuejs" target="_blank" rel="noopener">@vuejs</a>
-    twitter account for latest news in the Vue world.-->
   </WelcomeItem>
 
   <WelcomeItem>
@@ -61,6 +67,5 @@ import SupportIcon from './icons/IconSupport.vue'
       <SupportIcon />
     </template>
     <template #heading>Filters for property types or room types and years.</template>
-
   </WelcomeItem>
 </template>
