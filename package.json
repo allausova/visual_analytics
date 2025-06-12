@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@statnett/vue-plotly": "^0.3.2",
+    "bootstrap": "^5.3.6",
+    "bootstrap-vue": "^2.23.1",
+    "bootstrap-vue-3": "^0.5.1",
     "buffer": "^6.0.3",
     "chart.js": "^2.9.4",
     "crossfilter2": "^1.5.4",

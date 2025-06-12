@@ -1,16 +1,4 @@
-<!-- <template>
-  <div class="dashboard">
-    <div class="left-panel">
-      <HelloWorld msg="Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights" />
-    </div>
-    <div class="right-panel">
-      <TheWelcome />
-      <div style="height:300px">
-        <Chart :cfAggregation="dataYear"></Chart>
-      </div>
-    </div>
-  </div>
-</template> -->
+<!-- 
 <template>
   <div class="dashboard">
     <div class="left-panel">
@@ -23,7 +11,57 @@
     </div>
 
   </div>
+</template>-->
+
+<template>
+  <b-container>
+    <b-row>
+      <b-col>
+        <b-form-group label="Year" label-for="year-select" class="mb-3">
+          <b-form-select
+            id="year-select"
+            v-model="year.value"
+            :options="year.options"
+          ></b-form-select>
+        </b-form-group>
+      </b-col>
+
+
+      <b-col>
+        <b-form-group label="Country" label-for="country-select" class="mb-3">
+          <b-form-select
+            id="country-select"
+            v-model="country.value"
+            :options="country.options"
+          ></b-form-select>
+        </b-form-group>
+      </b-col>
+
+      <b-col>
+        <b-form-group label="Property Type" label-for="property-select" class="mb-3">
+          <b-form-select
+            id="property-select"
+            v-model="propertyType.value"
+            :options="propertyType.options"
+          ></b-form-select>
+        </b-form-group>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col >
+        <HelloWorld msg="Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights" />
+      </b-col>
+
+      <b-col>
+        <Chart :cfAggregation="dataYear" class="mb-3" />
+        <Chart :cfAggregation="dataCountry" class="mb-3" />
+        <Chart :cfAggregation="dataPropertyType" class="mb-3" />
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
+
+
 
 
 <script>
@@ -50,8 +88,8 @@ export default {
   data() {
     return {
       year: {
-        value: 2013,
-        options: [2013, 2014, 2015]
+        value: 'All',
+        options: ['All', 2013, 2014, 2015]
       },
       country: {
         value: 'All',
@@ -116,7 +154,7 @@ export default {
         this.dCountry = this.cf.dimension(d => d.Country)
         this.dPropertyType = this.cf.dimension(d => d.Property_type)
 
-        this.year.options = this.dYear.group().reduceCount().all().map(v => v.key)
+        this.year.options = ['All'].concat(this.dYear.group().reduceCount().all().map(v => v.key))
         this.year.value = this.year.options[0]
 
         this.propertyType.options = ['All'].concat(this.dPropertyType.group().reduceCount().all().map(v => v.key))
@@ -168,7 +206,11 @@ export default {
   watch: {
     year: {
       handler(newVal) {
-        this.dYear.filter(newVal.value)
+        if (newVal.value === 'All') {
+          this.dYear.filter(null)
+        } else {
+          this.dYear.filter(newVal.value)
+        }
         this.refreshCharts()
       },
       deep: true
@@ -201,7 +243,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<!-- <style scoped>
 .dashboard {
   display: flex;
   flex-direction: row;
@@ -220,4 +262,8 @@ export default {
   overflow-y: auto;
   background-color: #f0f0f0;
 }
+</style> -->
+<style scoped>
+
 </style>
+

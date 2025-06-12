@@ -21,13 +21,28 @@ const drawChart = (data) => {
     x: data.map(d => d.value),
     y: data.map(d => d.key),
     orientation: 'h',
-    marker: { color: '#3498db' }
+    marker: { color: '#3498db' },
+    text: data.map(d => d.value),
+    textposition: 'outside',
+    textfont: { color: '#000', size: 12 }
   }
-
+  const markerTrace = {
+    type: 'scatter',
+    mode: 'markers',
+    x: data.map(d => d.value),
+    y: data.map(d => d.key),
+    marker: {
+      color: '#e74c3c',
+      size: 8,
+      symbol: 'circle'
+    },
+    showlegend: false,
+    hoverinfo: 'skip'
+  }
   const layout = {
     height: 250,
-    margin: { t: 10, l: 70, b: 30, r: 10, pad: 5 },
-    yaxis: { type: 'category' },
+    margin: { t: 10, l: 120, b: 30, r: 10, pad: 5 },
+    yaxis: { type: 'category', automargin: true},
     xaxis: { zeroline: false }
   }
 
