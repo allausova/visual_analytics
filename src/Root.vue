@@ -9,6 +9,10 @@
         <input type="radio" value="new" v-model="selected" />
         New version
       </label>
+      <label>
+        <input type="radio" value="newold" v-model="selected" />
+        New old version
+      </label>
     </div>
 
     <component :is="selectedApp" />
@@ -18,12 +22,14 @@
 <script>
 import OldApp from './App_old.vue';
 import NewApp from './App.vue';
+import NewOldApp from './App_old_new_then_replace_App_old.vue';
 
 export default {
   name: 'Root',
   components: {
     NewApp,
     OldApp,
+    NewOldApp,
   },
   data() {
     return {
@@ -32,7 +38,14 @@ export default {
   },
   computed: {
     selectedApp() {
-      return this.selected === 'new' ? 'NewApp' : 'OldApp';
+      switch(this.selected) {
+        case 'new':
+          return 'NewApp';
+        case 'newold':
+          return 'NewOldApp';
+        default:
+          return 'OldApp';
+      }
     },
   },
 };
@@ -41,25 +54,6 @@ export default {
 <style scoped>
 label {
   cursor: pointer;
+  margin-right: 1rem; /* Добавил отступ между радиокнопками */
 }
-/* .root-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-}
-
-.sidebar {
-  width: 500px;
-  background-color: #ddd;
-  padding: 1rem;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.main-content {
-  flex: 1;
-  overflow: auto;
-} */
 </style>
