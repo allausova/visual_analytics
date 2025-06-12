@@ -31,7 +31,7 @@ export default {
   },
   async mounted() {
     const [csvData, geoData] = await Promise.all([
-      d3.csv('/data/airbnb-short-listings.csv'),
+      d3.csv('/data/airbnb-very-short-listings.csv'),
       d3.json('/data/world.geojson')
     ]);
 

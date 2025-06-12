@@ -30,8 +30,8 @@ export default {
 
     const g = svg.append('g');
     const map = MapWithLayers()
-        .scale(100)
-        .center([0, 20]);
+        .scale(700)
+        .center([-10, 50]) // Центрируем на Европу
 
     g.datum(this.geoData).call(map);
     this.drawPoints();

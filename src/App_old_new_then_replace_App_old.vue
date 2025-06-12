@@ -1,17 +1,3 @@
-<!-- 
-<template>
-  <div class="dashboard">
-    <div class="left-panel">
-      <HelloWorld msg="Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights" />
-    </div>
-    <div class="right-panel">
-        <Chart :cfAggregation="dataYear"></Chart>
-        <Chart :cfAggregation="dataCountry"></Chart>
-        <Chart :cfAggregation="dataPropertyType"></Chart>
-    </div>
-
-  </div>
-</template>-->
 
 <template>
   <b-container>
@@ -49,7 +35,12 @@
     </b-row>
     <b-row>
       <b-col >
-        <HelloWorld msg="Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights" />
+        <HelloWorld msg="Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights" /> 
+        <h3>Map</h3>
+        <div style="height:500px">
+          <Map :featureCollection="pointCollection"></Map>
+        </div>
+
       </b-col>
 
       <b-col>
@@ -66,23 +57,18 @@
 
 <script>
 import HelloWorld from './components/Left_part_old_map.vue'
-import TheWelcome from './components/Old_right_part.vue'
+//import TheWelcome from './components/Old_right_part.vue'
 import Chart from './components/BarChart.vue'
 import crossfilter from 'crossfilter2'
 import * as d3Dsv from 'd3-dsv';
-
-// crossfilter data management
-
-// let cf; // crossfilter instance
-// let dYear; // dimension for Year
-// let dCountry; // dimension for Country
-// let dPropertyType; // dimension for PropertyType
+import Map from './components/Map_new_old.vue'; 
 
 export default {
   name: 'Airbnb',
   components: {
+    Map,
     HelloWorld,
-    TheWelcome,
+    // TheWelcome,
     Chart  
   },
   data() {
@@ -125,7 +111,7 @@ export default {
     }
   },
   mounted() {
-    fetch('data/airbnb-short-listings.csv')
+    fetch('data/airbnb-very-short-listings.csv')
       .then(res => res.text())
       .then(csvText => {
         const data = d3Dsv.csvParse(csvText);
@@ -165,20 +151,28 @@ export default {
 
         this.refreshCounters()
         this.refreshCharts()
-        this.refreshMap(this.dYear)
+        this.refreshMap()
       })
   },
   methods: {
     refreshCounters() {
       this.numRecords = this.cf.groupAll().reduceCount().value()
+      console.log('🔢 refreshCounters → numRecords:', this.numRecords)
     },
     refreshCharts() {
       this.dataYear = this.dYear.group().reduceCount().all()
       this.dataPropertyType = this.dPropertyType.group().reduceCount().all()
       this.dataCountry = this.dCountry.group().reduceCount().all()
+      console.log('📊 refreshCharts → dataYear:', this.dataYear)
+      console.log('📊 refreshCharts → dataPropertyType:', this.dataPropertyType)
+      console.log('📊 refreshCharts → dataCountry:', this.dataCountry)
     },
     refreshMap(cfDimension) {
-      this.pointCollection = this.getGeoJsonFromReports(cfDimension.top(Infinity))
+      console.log('🗺️ refreshMap called with dimension:', cfDimension)
+      const filteredReports = this.dYear ? this.dYear.top(Infinity) : []
+    console.log('🗺️ filteredReports length:', filteredReports.length)
+      this.pointCollection = this.getGeoJsonFromReports(filteredReports)
+      // this.pointCollection = this.getGeoJsonFromReports(cfDimension.top(Infinity))
     },
     getGeoJsonFromReports(reports) {
       const fc = {
@@ -200,6 +194,7 @@ export default {
             }
           }))
       }
+      console.log('🗺️ GeoJSON features count:', fc.features.length)
       return fc
     }
   },
@@ -212,6 +207,7 @@ export default {
           this.dYear.filter(newVal.value)
         }
         this.refreshCharts()
+        this.refreshMap() 
       },
       deep: true
     },
@@ -223,6 +219,7 @@ export default {
           this.dPropertyType.filter(newVal.value)
         }
         this.refreshCharts()
+        this.refreshMap()
       },
       deep: true
     },
@@ -235,7 +232,7 @@ export default {
         }
         this.refreshCounters()
         this.refreshCharts()
-        this.refreshMap(this.dCountry)
+        this.refreshMap()
       },
       deep: true
     }
@@ -243,27 +240,8 @@ export default {
 }
 </script>
 
-<!-- <style scoped>
-.dashboard {
-  display: flex;
-  flex-direction: row;
-}
-
-.left-panel {
-  flex: 2;
-  max-width: 40vw;
-  background-color: #f0f0f0;
-}
-
-.right-panel {
-  flex: 1;
-  padding: 1rem;
-  max-width: 60vw;
-  overflow-y: auto;
-  background-color: #f0f0f0;
-}
-</style> -->
 <style scoped>
-
+/* твои стили */
 </style>
+
 

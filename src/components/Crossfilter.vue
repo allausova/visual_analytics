@@ -13,7 +13,7 @@ const selectedYear = ref('')
 
 // загрузка данных
 onMounted(async () => {
-  const csv = await d3.csv('/data/airbnb-short-listings.csv')
+  const csv = await d3.csv('/data/airbnb-very-short-listings.csv')
   csv.forEach(d => {
     d.host_since_year = +d.host_since_year
   })

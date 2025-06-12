@@ -40,7 +40,7 @@ const drawChart = (data) => {
     hoverinfo: 'skip'
   }
   const layout = {
-    height: 250,
+    // height: 250,
     margin: { t: 10, l: 120, b: 30, r: 10, pad: 5 },
     yaxis: { type: 'category', automargin: true},
     xaxis: { zeroline: false }
@@ -63,7 +63,7 @@ watch(() => props.cfAggregation, (newVal) => {
 </script>
 
 <style scoped>
-div {
+/* div {
   height: 250px;
-}
+} */
 </style>
