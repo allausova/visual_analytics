@@ -19,16 +19,21 @@ export default {
   },
   data() {
     return {
-      projection: null
+      projection: null,
+      map: null
     }
   },
   mounted() {
     const gWorld = d3.select(this.$refs.world)
-    const gReports = d3.select(this.$refs.reports)
 
-    const map = MapWithLayers()
-      .scale(700)
-      .center([-10, 50]) // Центрируем на Европу
+    // Создаём проекцию заранее с нужными параметрами
+    this.projection = d3.geoMercator()
+      .scale(1200)
+      .center([-5, 52])
+      .translate([this.$el.clientWidth / 2, 250])
+
+    // Создаём объект карты с синхронизированной проекцией
+    this.map = MapWithLayers().setProjection(this.projection)
 
     d3.json('/data/world.geojson')
       .then(world => {
@@ -37,17 +42,12 @@ export default {
           features: world.features.filter(d => d.properties.CNTR_ID !== 'AQ')
         }
 
-        gWorld.datum(filteredWorld).call(map)
-
-        // сохраняем проекцию
-        this.projection = d3.geoMercator()
-          .scale(700)
-          .center([-10, 50])
-          .translate([this.$el.clientWidth / 2, 250])
+        // Рисуем мир, передавая синхронизированную проекцию
+        gWorld.datum(filteredWorld).call(this.map)
 
         console.log('🗺️ Projection created:', this.projection)
 
-        // начальная отрисовка
+        // Начальная отрисовка точек
         this.updatePoints()
       })
       .catch(err => console.error('Map load error:', err))
@@ -95,15 +95,13 @@ export default {
         .attr('r', 2.5)
         .attr('fill', 'crimson')
         .attr('opacity', 0.7)
-    console.log(`🗺️ All ${points.length} points have been rendered on the map.`)
+
+      console.log(`🗺️ All ${points.length} points have been rendered on the map.`)
     }
   }
 }
 </script>
 
 <style>
-    /* svg {
-    border: 1px solid #ccc;
-    background-color: #f9f9f9;
-    } */
+/* Можно добавить стили по необходимости */
 </style>

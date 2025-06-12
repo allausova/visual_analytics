@@ -35,8 +35,7 @@
     </b-row>
     <b-row>
       <b-col >
-        <HelloWorld msg="Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights" /> 
-        <h3>Map</h3>
+        <h1 class="green">Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights</h1>
         <div style="height:500px">
           <Map :featureCollection="pointCollection"></Map>
         </div>
@@ -56,8 +55,6 @@
 
 
 <script>
-import HelloWorld from './components/Left_part_old_map.vue'
-//import TheWelcome from './components/Old_right_part.vue'
 import Chart from './components/BarChart.vue'
 import crossfilter from 'crossfilter2'
 import * as d3Dsv from 'd3-dsv';
@@ -67,7 +64,7 @@ export default {
   name: 'Airbnb',
   components: {
     Map,
-    HelloWorld,
+    // HelloWorld,
     // TheWelcome,
     Chart  
   },
@@ -241,7 +238,15 @@ export default {
 </script>
 
 <style scoped>
-/* твои стили */
+h1 {
+  font-weight: 500;
+  font-size: 2.6rem;
+  position: relative;
+  top: -10px;
+}
+.greetings h3 {
+  text-align: center;
+}
 </style>
 
 
