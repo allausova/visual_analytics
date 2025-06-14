@@ -58,7 +58,7 @@
 import Chart from './components/BarChart.vue'
 import crossfilter from 'crossfilter2'
 import * as d3Dsv from 'd3-dsv';
-import Map from './components/Map_new_old.vue'; 
+import Map from './components/Map_with_layers.vue'; 
 
 export default {
   name: 'Airbnb',
