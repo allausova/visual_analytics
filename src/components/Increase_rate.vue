@@ -17,7 +17,7 @@ const chartContainer = ref(null)
 
 // 📈 Вычисляем темп прироста между годами
 const calculateIncreaseRate = (data) => {
-  const sorted = [...data].sort((a, b) => b.key - a.key)
+  const sorted = [...data].sort((a, b) => a.key - b.key)
   const result = []
 
   for (let i = 1; i < sorted.length; i++) {
@@ -28,27 +28,31 @@ const calculateIncreaseRate = (data) => {
 
     const rate = ((curr - prev) / prev) * 100
     result.push({
-      key: `${sorted[i].key} → ${sorted[i-1].key}`,
+      key: `${sorted[i-1].key} → ${sorted[i].key}`,
       value: parseFloat(rate.toFixed(2)) // округляем до двух знаков
     })
   }
-
+  //result_sorted = [...result].sort((a, b) => a.key - b.key)
+  console.log('📈 increase result:', result)
   return result
 }
 
 const drawChart = (data) => {
   const processedData = calculateIncreaseRate(data)
+  const reversedValues = processedData.map(d => d.value).reverse()
+  const reversedKeys = processedData.map(d => d.key).reverse()
+  const reversedTexts = processedData.map(d => `${d.value}%`).reverse()
 
-  const trace = {
-    type: 'bar',
-    x: processedData.map(d => d.value),
-    y: processedData.map(d => d.key),
-    orientation: 'h',
-    marker: { color: '#3498db' },
-    text: processedData.map(d => `${d.value}%`),
-    textposition: 'outside',
-    textfont: { color: '#000', size: 12 }
-  }
+const trace = {
+  type: 'bar',
+  x: reversedValues,
+  y: reversedKeys,
+  orientation: 'h',
+  marker: { color: '#3498db' },
+  text: reversedTexts,
+  textposition: 'outside',
+  textfont: { color: '#000', size: 12 }
+}
 
   const layout = {
     margin: { t: 30, l: 100, b: 30, r: 10 },

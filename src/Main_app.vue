@@ -3,7 +3,7 @@
   <b-container>
     <b-row>
       <b-col>
-        <b-form-group label="Year" label-for="year-select" class="mb-3">
+        <b-form-group label="Year since" label-for="year-select" class="mb-3">
           <b-form-select
             id="year-select"
             v-model="year.value"
@@ -204,7 +204,7 @@ export default {
         if (newVal.value === 'All') {
           this.dYear.filter(null)
         } else {
-          this.dYear.filter(newVal.value)
+          this.dYear.filter(d => d <= newVal.value)
         }
         this.refreshCharts()
         this.refreshMap() 
