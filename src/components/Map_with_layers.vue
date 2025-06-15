@@ -1,9 +1,17 @@
 <template>
-  <svg height="500" width="100%">
-    <g class="world" ref="world"></g>
-    <g class="reports" ref="reports"></g>
-  </svg>
+  <div style="position: relative;">
+    <svg height="500" width="100%">
+      <g class="zoom-group">
+        <g class="world" ref="world"></g>
+        <g class="reports" ref="reports"></g>
+      </g>
+    </svg>
+  </div>
 </template>
+
+
+
+
 
 <script>
 import MapWithLayers from '@/assets/js/Layers'
@@ -24,33 +32,39 @@ export default {
     }
   },
   mounted() {
-    const gWorld = d3.select(this.$refs.world)
+    const svg = d3.select(this.$el);
+    const gWorld = d3.select(this.$refs.world);
+    const gReports = d3.select(this.$refs.reports);
 
-    // Создаём проекцию заранее с нужными параметрами
     this.projection = d3.geoMercator()
-      .scale(1200)
+      .scale(1000)
       .center([-5, 52])
-      .translate([this.$el.clientWidth / 2, 250])
+      .translate([this.$el.clientWidth / 2, 250]);
 
-    // Создаём объект карты с синхронизированной проекцией
-    this.map = MapWithLayers().setProjection(this.projection)
+    this.map = MapWithLayers().setProjection(this.projection);
 
     d3.json('/data/world.geojson')
       .then(world => {
         const filteredWorld = {
           ...world,
           features: world.features.filter(d => d.properties.CNTR_ID !== 'AQ')
-        }
-
-        // Рисуем мир, передавая синхронизированную проекцию
-        gWorld.datum(filteredWorld).call(this.map)
-
+        };
+        gWorld.datum(filteredWorld).call(this.map);
         console.log('🗺️ Projection created:', this.projection)
 
-        // Начальная отрисовка точек
-        this.updatePoints()
+        this.updatePoints();
       })
-      .catch(err => console.error('Map load error:', err))
+      .catch(err => console.error('Map load error:', err));
+
+    // Зум
+    const zoomGroup = svg.select('g.zoom-group');
+    svg.call(
+      d3.zoom()
+        .scaleExtent([1, 8])
+        .on('zoom', (event) => {
+          zoomGroup.attr('transform', event.transform);
+        })
+    );
   },
   watch: {
     featureCollection: {
@@ -72,8 +86,8 @@ export default {
         return
       }
 
-      const gReports = d3.select(this.$refs.reports)
-
+    const gReports = d3.select(this.$refs.reports)
+    
       const points = this.featureCollection.features
         .filter(d => d.geometry && d.geometry.coordinates)
         .map(d => {
@@ -86,6 +100,7 @@ export default {
         })
 
       console.log('🗺️ Points to draw:', points.length, 'Sample point coords:', points[0]?.coords)
+
 
       gReports.selectAll('circle')
         .data(points)
@@ -102,6 +117,7 @@ export default {
 }
 </script>
 
+
 <style>
-/* Можно добавить стили по необходимости */
 </style>
+

@@ -15,7 +15,6 @@ const props = defineProps({
 
 const chartContainer = ref(null)
 
-// 📈 Вычисляем темп прироста между годами
 const calculateIncreaseRate = (data) => {
   const sorted = [...data].sort((a, b) => a.key - b.key)
   const result = []
@@ -39,7 +38,7 @@ const calculateIncreaseRate = (data) => {
 
 const drawChart = (data) => {
   const processedData = calculateIncreaseRate(data)
-  const reversedValues = processedData.map(d => d.value).reverse()
+  const reversedValues = processedData.map(d => d.value).reverse() // reverse is done to sort the barchart by year 
   const reversedKeys = processedData.map(d => d.key).reverse()
   const reversedTexts = processedData.map(d => `${d.value}%`).reverse()
 
@@ -48,7 +47,7 @@ const trace = {
   x: reversedValues,
   y: reversedKeys,
   orientation: 'h',
-  marker: { color: '#3498db' },
+  marker: { color: '#66b3a6' },
   text: reversedTexts,
   textposition: 'outside',
   textfont: { color: '#000', size: 12 }
