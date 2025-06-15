@@ -48,6 +48,9 @@
         <Chart :cfAggregation="dataPropertyType" class="mb-3" />
       </b-col>
     </b-row>
+    <b-row>
+        <IR :cfAggregation="dataYear" class="mb-3" />
+    </b-row>
   </b-container>
 </template>
 
@@ -59,14 +62,14 @@ import Chart from './components/BarChart.vue'
 import crossfilter from 'crossfilter2'
 import * as d3Dsv from 'd3-dsv';
 import Map from './components/Map_with_layers.vue'; 
+import IR from './components/Increase_rate.vue'; 
 
 export default {
   name: 'Airbnb',
   components: {
     Map,
-    // HelloWorld,
-    // TheWelcome,
-    Chart  
+    Chart,
+    IR 
   },
   data() {
     return {

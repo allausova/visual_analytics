@@ -15,7 +15,8 @@ const props = defineProps({
 
 const chartContainer = ref(null)
 
-const drawChart = (data) => {
+const drawChart = (dt) => {
+  const data = [...dt].sort((a, b) => b.key - a.key)
   const trace = {
     type: 'bar',
     x: data.map(d => d.value),
