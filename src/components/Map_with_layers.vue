@@ -14,7 +14,6 @@
       <div><strong>Year:</strong> {{ tooltipData.year }}</div>
   </div>
 </template>
-
 <script>
 import MapWithLayers from '@/assets/js/Layers'
 import * as d3 from 'd3'
@@ -35,23 +34,14 @@ export default {
       tooltipStyle: {
         left: '0px',
         top: '0px',
-        pointerEvents: 'none',
-        position: 'absolute',
-        // добавим чтобы при любом раскладе позиционировался правильно
-        zIndex: 10000,
-        background: 'white',
-        padding: '8px 10px',
-        border: '1px solid #ccc',
-        borderRadius: '6px',
-        fontSize: '0.9rem',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-        whiteSpace: 'nowrap',
+        pointerEvents: 'none'
       },
       tooltipData: {
         City: '',
         Property_type: '',
         year: ''
-      }
+      },
+      currentZoom: 1
     }
   },
 
@@ -74,19 +64,28 @@ export default {
           features: world.features.filter(d => d.properties.CNTR_ID !== 'AQ')
         };
         gWorld.datum(filteredWorld).call(this.map);
-        console.log('🗺️ Projection created:', this.projection)
+        console.log('🗺️ Projection created:', this.projection);
 
         this.updatePoints();
       })
       .catch(err => console.error('Map load error:', err));
 
-    // Зум
     const zoomGroup = svg.select('g.zoom-group');
     svg.call(
       d3.zoom()
         .scaleExtent([1, 8])
         .on('zoom', (event) => {
+          this.currentZoom = event.transform.k;
           zoomGroup.attr('transform', event.transform);
+
+          gReports.selectAll('circle.country-cluster')
+            .style('display', this.currentZoom < 2 ? 'block' : 'none');
+
+          gReports.selectAll('circle.city-point')
+            .style('display', this.currentZoom >= 2 ? 'block' : 'none');
+
+          gReports.selectAll('text.cluster-count')
+            .style('display', this.currentZoom < 2 ? 'block' : 'none');
         })
     );
   },
@@ -94,8 +93,8 @@ export default {
   watch: {
     featureCollection: {
       handler(newVal) {
-        console.log('🗺️ featureCollection updated:', newVal ? newVal.features.length : 0, 'features')
-        this.updatePoints()
+        console.log('🗺️ featureCollection updated:', newVal ? newVal.features.length : 0, 'features');
+        this.updatePoints();
       },
       deep: true
     }
@@ -103,59 +102,87 @@ export default {
 
   methods: {
     updatePoints() {
-      if (!this.projection) {
-        console.warn('🗺️ updatePoints: projection not ready yet')
-        return
-      }
-      if (!this.featureCollection) {
-        console.warn('🗺️ updatePoints: featureCollection is empty or undefined')
-        return
-      }
+      if (!this.projection || !this.featureCollection) return;
 
-      const gReports = d3.select(this.$refs.reports)
+      const gReports = d3.select(this.$refs.reports);
       const vm = this;
+
+      // Группировка по странам
+      const countryClusters = d3.rollups(
+        this.featureCollection.features,
+        v => ({ count: v.length, cities: v }),
+        d => d.properties.Country
+      );
+
+      const clusters = countryClusters.map(([country, { count, cities }]) => {
+        const avgLon = d3.mean(cities, d => d.geometry.coordinates[0]);
+        const avgLat = d3.mean(cities, d => d.geometry.coordinates[1]);
+        const [x, y] = this.projection([avgLon, avgLat]);
+        return { country, count, coords: [x, y] };
+      });
 
       const points = this.featureCollection.features
         .filter(d => d.geometry && d.geometry.coordinates)
         .map(d => {
-          const [lon, lat] = d.geometry.coordinates
-          const coords = this.projection([lon, lat])
+          const [lon, lat] = d.geometry.coordinates;
+          const coords = this.projection([lon, lat]);
           return {
             ...d,
             coords
-          }
-        })
+          };
+        });
 
-      console.log('🗺️ Points to draw:', points.length, 'Sample point coords:', points[0]?.coords)
-      gReports.selectAll('circle')
+      // Кластеры стран
+      gReports.selectAll('circle.country-cluster')
+        .data(clusters)
+        .join('circle')
+        .attr('class', 'country-cluster')
+        .attr('cx', d => d.coords[0])
+        .attr('cy', d => d.coords[1])
+        .attr('r', d => Math.sqrt(d.count) * 2.5)
+        .attr('fill', 'steelblue')
+        .attr('opacity', 0.7);
+
+      // Подписи количества
+      gReports.selectAll('text.cluster-count')
+        .data(clusters)
+        .join('text')
+        .attr('class', 'cluster-count')
+        .attr('x', d => d.coords[0])
+        .attr('y', d => d.coords[1] + 4)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '10px')
+        .attr('fill', 'white')
+        .text(d => d.count);
+
+      // Отдельные точки (города)
+      gReports.selectAll('circle.city-point')
         .data(points)
         .join('circle')
+        .attr('class', 'city-point')
         .attr('cx', d => d.coords[0])
         .attr('cy', d => d.coords[1])
         .attr('r', 2.5)
         .attr('fill', 'crimson')
         .attr('opacity', 0.7)
-    .on('mouseenter', function (event, d) {
-      console.log('mouseenter, d.properties:', d.properties);
-      vm.tooltipData = { ...d.properties };
-      vm.tooltipVisible = true;
-    })
-    .on('mousemove', function (event) {
-      const containerRect = vm.$refs.container.getBoundingClientRect();
-      const left = event.pageX - containerRect.left + 15;
-      const top = event.pageY - containerRect.top + 15;
-      vm.tooltipStyle = {
-        left: `${left}px`,
-        top: `${top}px`,
-        pointerEvents: 'auto'
-      };
-    })
-    .on('mouseleave', function () {
-      vm.tooltipVisible = false;
-      vm.tooltipData = { City: '', Property_type: '', year: '' };
-    });
-
-      console.log(`🗺️ All ${points.length} points have been rendered on the map.`)
+        .on('mouseenter', function (event, d) {
+          console.log('mouseenter', d.properties);
+          vm.tooltipVisible = true;
+          vm.tooltipData = d.properties;
+        })
+        .on('mousemove', function (event) {
+          const containerRect = vm.$refs.container.getBoundingClientRect();
+          const left = event.pageX - containerRect.left + 15;
+          const top = event.pageY - containerRect.top + 15;
+          vm.tooltipStyle = {
+            left: `${left}px`,
+            top: `${top}px`,
+            pointerEvents: 'none'
+          };
+        })
+        .on('mouseleave', function () {
+          vm.tooltipVisible = false;
+        });
     }
   }
 }
@@ -165,7 +192,7 @@ export default {
 .tooltip {
   position: absolute;
   background: white;
-  color: black;           
+  color: black;
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
