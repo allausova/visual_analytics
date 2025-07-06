@@ -24,8 +24,13 @@ export default {
     featureCollection: {
       type: Object,
       required: true
+    },
+    colorScale: {
+      type: Function,
+      required: false // не обязательно, по умолчанию будет серый
     }
   },
+
   data() {
     return {
       projection: null,
@@ -81,7 +86,7 @@ export default {
           gReports.selectAll('circle.country-cluster')
             .style('display', this.currentZoom < 2 ? 'block' : 'none');
 
-          gReports.selectAll('circle.city-point')
+          gReports.selectAll('circle.prop-point')
             .style('display', this.currentZoom >= 2 ? 'block' : 'none');
 
           gReports.selectAll('text.cluster-count')
@@ -106,8 +111,6 @@ export default {
 
       const gReports = d3.select(this.$refs.reports);
       const vm = this;
-
-      // Группировка по странам
       const countryClusters = d3.rollups(
         this.featureCollection.features,
         v => ({ count: v.length, cities: v }),
@@ -118,8 +121,24 @@ export default {
         const avgLon = d3.mean(cities, d => d.geometry.coordinates[0]);
         const avgLat = d3.mean(cities, d => d.geometry.coordinates[1]);
         const [x, y] = this.projection([avgLon, avgLat]);
-        return { country, count, coords: [x, y] };
+
+        // Определим наиболее частый Property_type
+        const typeCounts = d3.rollup(
+          cities,
+          v => v.length,
+          d => d.properties.Property_type
+        );
+        const topPropertyType = Array.from(typeCounts.entries())
+          .sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+
+        return {
+          country,
+          count,
+          coords: [x, y],
+          topPropertyType
+        };
       });
+
 
       const points = this.featureCollection.features
         .filter(d => d.geometry && d.geometry.coordinates)
@@ -140,7 +159,7 @@ export default {
         .attr('cx', d => d.coords[0])
         .attr('cy', d => d.coords[1])
         .attr('r', d => Math.sqrt(d.count) * 2.5)
-        .attr('fill', 'steelblue')
+        .attr('fill', d => this.colorScale ? this.colorScale(d.topPropertyType) : 'steelblue')
         .attr('opacity', 0.7);
 
       // Подписи количества
@@ -155,16 +174,17 @@ export default {
         .attr('fill', 'white')
         .text(d => d.count);
 
-      // Отдельные точки (города)
-      gReports.selectAll('circle.city-point')
+      
+      gReports.selectAll('circle.prop-point')
         .data(points)
         .join('circle')
-        .attr('class', 'city-point')
+        .attr('class', 'prop-point')
         .attr('cx', d => d.coords[0])
         .attr('cy', d => d.coords[1])
         .attr('r', 2.5)
-        .attr('fill', 'crimson')
+        .attr('fill', d => this.colorScale ? this.colorScale(d.properties.Property_type) : 'steelblue')
         .attr('opacity', 0.7)
+        .style('display', this.currentZoom >= 2 ? 'block' : 'none')
         .on('mouseenter', function (event, d) {
           console.log('mouseenter', d.properties);
           vm.tooltipVisible = true;

@@ -37,7 +37,7 @@
       <b-col >
         <h1 class="green">Mapping the Dynamics of Airbnb Hosts Across Europe: Growth, Distribution, and Market Insights</h1>
         <div style="height:500px">
-          <Map :featureCollection="pointCollection"></Map>
+          <Map v-if="colorScale_property" :featureCollection="pointCollection":colorScale="colorScale_property"></Map>
         </div>
 
       </b-col>
@@ -45,7 +45,7 @@
       <b-col>
         <Chart :cfAggregation="dataYear" class="mb-3" />
         <Chart :cfAggregation="dataCountry" class="mb-3" />
-        <Chart :cfAggregation="dataPropertyType" class="mb-3" />
+        <Chart :cfAggregation="dataPropertyType" class="mb-3" :colorScale="colorScale_property"/>
       </b-col>
     </b-row>
     <b-row>
@@ -61,6 +61,7 @@
 import Chart from './components/BarChart.vue'
 import crossfilter from 'crossfilter2'
 import * as d3Dsv from 'd3-dsv';
+import * as d3 from 'd3';
 import Map from './components/Map_with_layers.vue'; 
 import IR from './components/Increase_rate.vue'; 
 
@@ -107,7 +108,9 @@ export default {
       cf: null,
       dYear: null,
       dCountry: null,
-      dPropertyType: null
+      dPropertyType: null,
+      colorScale_property: null
+
     }
   },
   mounted() {
@@ -129,9 +132,12 @@ export default {
           if (d.Latitude) {
             r.LaunchCoords = [+d.Latitude, +d.Longitude]
           }
-
           return r
         })
+        const propertyTypes = [...new Set(reports.map(r => r.Property_type))]
+        this.colorScale_property = d3.scaleOrdinal()
+          .domain(propertyTypes)
+          .range(d3.schemeCategory10);
 
         // initialize Crossfilter
         //cf = crossfilter(reports)

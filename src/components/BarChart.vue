@@ -10,7 +10,11 @@ const props = defineProps({
   cfAggregation: {
     type: Array,
     default: () => []
-  }
+  },
+    colorScale: {
+      type: Function,
+      required: false 
+    }
 })
 
 const chartContainer = ref(null)
@@ -22,7 +26,9 @@ const drawChart = (dt) => {
     x: data.map(d => d.value),
     y: data.map(d => d.key),
     orientation: 'h',
-    marker: { color: '#66b3a6' },
+    marker: {
+      color: data.map(d => props.colorScale ? props.colorScale(d.key) : '#66b3a6')
+    },
     text: data.map(d => d.value),
     textposition: 'outside',
     textfont: { color: '#000', size: 12 }
