@@ -1,6 +1,13 @@
 <template>
   <div ref="container" style="position: relative;">
-    <svg ref="svg" height="500" width="100%">
+  <div  v-if="currentZoom >= 2"
+    style="position: absolute; bottom: 50; left: 30; background: #eee; font-size: 12px; z-index: 10001;">
+      <div><strong>City:</strong> {{ tooltipData.City }}</div>
+      <div><strong>Property:</strong> {{ tooltipData.Property_type }}</div>
+      <div><strong>Year:</strong> {{ tooltipData.year }}</div>
+      <div><strong>Number of similar properies around this location:</strong> {{ tooltipData.count }}</div>
+  </div>
+    <svg ref="svg" height="700" width="100%">
       <g class="zoom-group">
         <g class="world" ref="world"></g>
         <g class="reports" ref="reports"></g>
@@ -8,11 +15,7 @@
     </svg>
 
     </div>
-  <div style="position: absolute; bottom: 50; left: 30; background: #eee; font-size: 12px; z-index: 10001;">
-      <div><strong>City:</strong> {{ tooltipData.City }}</div>
-      <div><strong>Property:</strong> {{ tooltipData.Property_type }}</div>
-      <div><strong>Year:</strong> {{ tooltipData.year }}</div>
-  </div>
+
 </template>
 <script>
 import MapWithLayers from '@/assets/js/Layers'
@@ -44,7 +47,8 @@ export default {
       tooltipData: {
         City: '',
         Property_type: '',
-        year: ''
+        year: '',
+        count_p: ''
       },
       currentZoom: 1
     }
@@ -78,7 +82,7 @@ export default {
     const zoomGroup = svg.select('g.zoom-group');
     svg.call(
       d3.zoom()
-        .scaleExtent([1, 8])
+        .scaleExtent([1, 20])
         .on('zoom', (event) => {
           this.currentZoom = event.transform.k;
           zoomGroup.attr('transform', event.transform);
@@ -98,6 +102,7 @@ export default {
   watch: {
     featureCollection: {
       handler(newVal) {
+        console.log(this.featureCollection.features[0]);
         console.log('🗺️ featureCollection updated:', newVal ? newVal.features.length : 0, 'features');
         this.updatePoints();
       },
@@ -113,7 +118,10 @@ export default {
       const vm = this;
       const countryClusters = d3.rollups(
         this.featureCollection.features,
-        v => ({ count: v.length, cities: v }),
+        v => ({
+          count: d3.sum(v, d => d.properties.count), 
+          cities: v
+        }),
         d => d.properties.Country
       );
 
@@ -121,8 +129,15 @@ export default {
         const avgLon = d3.mean(cities, d => d.geometry.coordinates[0]);
         const avgLat = d3.mean(cities, d => d.geometry.coordinates[1]);
         const [x, y] = this.projection([avgLon, avgLat]);
+      const countryClusters = d3.rollups(
+        this.featureCollection.features,
+        v => ({
+          count: d3.sum(v, d => d.properties.count),  
+          cities: v
+        }),
+        d => d.properties.Country
+      );
 
-        // Определим наиболее частый Property_type
         const typeCounts = d3.rollup(
           cities,
           v => v.length,
@@ -150,7 +165,9 @@ export default {
             coords
           };
         });
-
+      const radiusScale = d3.scaleSqrt()// для кластеров стран
+        .domain([1, d3.max(clusters, d => d.count)])
+        .range([4, 40]); // от 4 до 40 пикселей
       // Кластеры стран
       gReports.selectAll('circle.country-cluster')
         .data(clusters)
@@ -158,10 +175,10 @@ export default {
         .attr('class', 'country-cluster')
         .attr('cx', d => d.coords[0])
         .attr('cy', d => d.coords[1])
-        .attr('r', d => Math.sqrt(d.count) * 2.5)
-        .attr('fill', d => this.colorScale ? this.colorScale(d.topPropertyType) : 'steelblue')
+        .attr('r', d => radiusScale(d.count))
+        .attr('fill', d => this.colorScale ? this.colorScale(d.topPropertyType) : '#FF5A5F')
         .attr('opacity', 0.7);
-
+      
       // Подписи количества
       gReports.selectAll('text.cluster-count')
         .data(clusters)
@@ -173,15 +190,22 @@ export default {
         .attr('font-size', '10px')
         .attr('fill', 'white')
         .text(d => d.count);
-
       
+      function getRadiusByCount(count) {
+          if (count <= 3) return 1;
+          if (count <= 10) return 2;
+          if (count <= 50) return 3;
+          if (count <= 100) return 4;
+          return 5;
+        }
       gReports.selectAll('circle.prop-point')
         .data(points)
         .join('circle')
         .attr('class', 'prop-point')
         .attr('cx', d => d.coords[0])
         .attr('cy', d => d.coords[1])
-        .attr('r', 2.5)
+        .attr('r', d => getRadiusByCount(d.properties.count))
+
         .attr('fill', d => this.colorScale ? this.colorScale(d.properties.Property_type) : 'steelblue')
         .attr('opacity', 0.7)
         .style('display', this.currentZoom >= 2 ? 'block' : 'none')
@@ -211,7 +235,7 @@ export default {
 <style scoped>
 .tooltip {
   position: absolute;
-  background: white;
+  background: #FF9B9F;
   color: black;
   padding: 8px 10px;
   border: 1px solid #ccc;

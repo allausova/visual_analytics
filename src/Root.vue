@@ -1,17 +1,9 @@
 <template>
   <div>
-    <div style="padding: 1rem; background: #eee; background-color: hsla(160, 30%, 50%, 1);">
-      <!-- <label style="margin-left: 1rem;">
-        <input type="radio" value="old" v-model="selected" />
-        Old version 
-      </label>
+    <div style="padding: 1rem; background: #eee; background-color: '#666666';">
       <label>
-        <input type="radio" value="new" v-model="selected" />
-        New version
-      </label> -->
-      <label>
-        <input type="radio" value="newold" v-model="selected" />
-        New old version
+        <img src="/Airbnb_Logo.png" style="height: 30px; vertical-align: middle; margin-right: 10px;" />
+        <h5  class="headings_color"> data from https://www.kaggle.com/datasets/joebeachcapital/airbnb</h5>
       </label>
     </div>
 
@@ -27,8 +19,6 @@ import NewOldApp from './Main_app.vue';
 export default {
   name: 'Root',
   components: {
-    //NewApp,
-    //OldApp,
     NewOldApp,
   },
   data() {

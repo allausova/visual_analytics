@@ -47,7 +47,7 @@ const trace = {
   x: reversedValues,
   y: reversedKeys,
   orientation: 'h',
-  marker: { color: '#66b3a6' },
+  marker: { color: '#FF5A5F' },
   text: reversedTexts,
   textposition: 'outside',
   textfont: { color: '#000', size: 12 }

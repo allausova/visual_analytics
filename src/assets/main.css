@@ -17,6 +17,30 @@
   transition: 0.4s;
   padding: 3px;
 } 
+.airbnb_colour{
+  text-decoration: none;
+  color: #FF5A5F;
+  transition: 0.4s;
+  padding: 3px;
+}
+.teal{
+  text-decoration: none;
+  color: #17A589;
+  transition: 0.4s;
+  padding: 3px;
+}
+.headings_color{
+  text-decoration: none;
+  color: #2D3E50;
+  transition: 0.4s;
+  padding: 3px;
+}
+.subheadings_color{
+  text-decoration: none;
+  color: #666666;
+  transition: 0.4s;
+  padding: 3px;
+}
 
 @media (hover: hover) {
   a:hover {
